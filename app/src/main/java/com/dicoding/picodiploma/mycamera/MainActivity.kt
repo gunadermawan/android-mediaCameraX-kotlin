@@ -2,6 +2,7 @@ package com.dicoding.picodiploma.mycamera
 
 import android.Manifest
 import android.content.Intent
+import android.content.Intent.ACTION_GET_CONTENT
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -19,12 +20,20 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentPhotoPath: String
-    private val launchintentCamera =
+    private val launchIntentCamera =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 val myFile = File(currentPhotoPath)
                 val result = BitmapFactory.decodeFile(myFile.path)
                 binding.previewImageView.setImageBitmap(result)
+            }
+        }
+    private val launcherIntentGallery =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val selectedImg: Uri = result?.data?.data as Uri
+                val myFile = uriToFile(selectedImg, this@MainActivity)
+                binding.previewImageView.setImageURI(selectedImg)
             }
         }
 
@@ -72,7 +81,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGallery() {
-        Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
+        val intent = Intent()
+        intent.action = ACTION_GET_CONTENT
+        intent.type = "image/*"
+        val chooser = Intent.createChooser(intent, "choose a picture")
+        launcherIntentGallery.launch(chooser)
     }
 
     private fun startTakePhoto() {
@@ -83,7 +96,7 @@ class MainActivity : AppCompatActivity() {
                 "com.dicoding.picodiploma.mycamera", it)
             currentPhotoPath = it.absolutePath
             intent.putExtra(MediaStore.EXTRA_OUTPUT, phoroUri)
-            launchintentCamera.launch(intent)
+            launchIntentCamera.launch(intent)
         }
     }
 
