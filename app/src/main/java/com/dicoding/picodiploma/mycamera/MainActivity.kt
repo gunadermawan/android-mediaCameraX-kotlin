@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun uploadImage() {
         if (getFile!=null){
-            val file = getFile as File
+            val file =reduceFileImage(getFile as File)
             val description = "ini adalah deskripsi gambar".toRequestBody("text/plain".toMediaType())
             val requestImage = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
             val imageMultipart:MultipartBody.Part = MultipartBody.Part.createFormData("photo",file.name,requestImage)
